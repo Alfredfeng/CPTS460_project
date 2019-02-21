@@ -31,7 +31,7 @@ void printChild()
 		//print the first child
 		printf("[%d , %s]->",pp->pid, status[pp->status]);
 		while(pp->sibling){ //while the parent has siblings
-			printf("[%d, %s]->",pp->pid,status[pp->status]);
+			printf("[%d, %s]->",pp->sibling->pid,status[pp->sibling->status]);
 			pp = pp->sibling;//advanced to sibling
 		}
 		printf("NULL\n");

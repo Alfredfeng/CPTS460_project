@@ -181,6 +181,8 @@ int body()   // process body function
 		do_sleep();
 	if (strcmp(cmd, "wakeup")==0)
 		do_wakeup();
+  if(strcmp(cmd,"wait") == 0)
+    do_wait();
 	if (strcmp(cmd, "pipereader") ==0)
 		do_pipereader(); // pipe reader
 	if (strcmp(cmd, "pipewriter") ==0)
@@ -265,6 +267,12 @@ int do_wakeup()
   printf("enter an event value to wakeup with : ");
   event = geti();
   kwakeup(event);
+}
+
+int do_wait()
+{
+  printf("Waiting proc %d...\n",running->pid);
+  kwait(&running->status);
 }
 
 //producer and consumer
