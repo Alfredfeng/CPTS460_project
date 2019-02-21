@@ -10,6 +10,7 @@ int show_pipe()
   printf("\n");
   printf("----------------------------------------\n");
 }
+
 int kpipe()
 {
   int i;
@@ -31,7 +32,7 @@ int read_pipe(PIPE *p, char *buf, int n)
 
   if(p->n_writer == 0 && p->data == 0)
   {
-    printf("No data and no writer...\n");
+    printf("No data and no writer... Just returning ZERO\n");
     return 0;
   }
 
@@ -102,13 +103,13 @@ int pipe_reader()
  
   printf("input nbytes to read : " );
   nbytes = geti();
-  n = read_pipe(p, line, nbytes); // reading bytes from the buffer
-  if(n == 0)
+  if( nbytes == 0)
   {
-    printf("No more bytes to read: the reader exits\n");
-    p->n_reader --;//decrement the number of readers
-    kexit(0);
+    printf("The reader exits...\n");
+    p->n_reader --;
+    kexit(0);//the reader exits
   }
+  n = read_pipe(p, line, nbytes); // reading bytes from the buffer
   line[n] = 0;
   printf("Read n=%d bytes : line=%s\n", n, line);
 }
@@ -137,7 +138,10 @@ int pipe_writer()
     nbytes = strlen(line);
     printf("nbytes=%d buf=%s\n", nbytes, line);
     n = write_pipe(p, line, nbytes);
-    printf("wrote n=%d bytes\n", n);
+    if(n > 8)
+      printf("wrote 8 bytes, even if the original attempt was %d bytes\n",nbytes);
+    else
+      printf("wrote n=%d bytes\n", n);
   }
 }
 

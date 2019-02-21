@@ -23,18 +23,10 @@ int V(struct semaphore *s)
     enqueue(&readyQueue, p);
     printf("V-up %d\n", p->pid);
     show_buffer();
+    tswitch();
   }
 }
 
-
-typedef struct buffer{
-  char buf[BSIZE];
-  int head, tail;
-  struct semaphore data, room;
-  struct semaphore mutex;
-}BUFFER;
-
-BUFFER buffer;
 
 int show_buffer()
 {
@@ -91,16 +83,12 @@ int consumer()
  
   while(1){
     printf("input nbytes to read : " );
-    kgets(line);
-    line[strlen(line)-1] = 0;
     nbytes = geti();
-    show_buffer();
     for (i=0; i<nbytes; i++){
        line[i] = consume();
        printf("%c", line[i]);
     }
     printf("\n");
-    show_buffer();
     printf("consumer %d got n=%d bytes : line=%s\n", running->pid, n, line);
   }
 }

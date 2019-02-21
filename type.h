@@ -112,6 +112,13 @@ typedef struct semaphore{
   PROC *queue;
 }SEMAPHORE;
 
+typedef struct buffer{
+  char buf[BSIZE];
+  int head, tail;
+  struct semaphore data, room;
+  struct semaphore mutex;
+}BUFFER;
+
 
 typedef volatile struct timer{
     u32 *base; // timer's base address; as u32 pointer

@@ -10,6 +10,9 @@ PROC *tree; //process binary tree
 
 PIPE *pipe; //the pipe
 
+
+BUFFER buffer;//semaphore buffer
+
 PROC *sleepList;       // list of SLEEP procs
 int procsize = sizeof(PROC);
 volatile TIMER timer[4]; //4 timers; 2 per unit; at 0x00 and 0x20
@@ -133,7 +136,7 @@ int init()
 int menu()
 {
   printf("**********************************\n");
-  printf(" ps fork switch exit sleep wakeup wait \nshowpipe pipereader pipewriter producer consumer t \n");
+  printf(" ps fork switch exit sleep wakeup wait \nshowpipe pipereader pipewriter producer consumer showbuffer t \n");
   printf("**********************************\n");
 }
 
@@ -195,6 +198,8 @@ int body()   // process body function
 		do_tCommand();
 	if (strcmp(cmd, "showpipe") == 0)
 		do_showpipe();
+  if (strcmp(cmd, "showbuffer") == 0)
+    do_showbuffer();//show buffer
 
   }
 }
@@ -301,6 +306,11 @@ int do_showpipe()
 {
 	show_pipe();
 }
+
+int do_showbuffer()
+{
+  show_buffer();//show semaphore buffer
+}
 //timer
 int do_tCommand()
 {
@@ -319,6 +329,7 @@ int main()
    kprintf("Welcome to Wanix in ARM\n");
    kbd_init(); //initialize keyboard
    kpipe(); //initialize pipe
+   buffer_init();//initialize semaphore buffer
 
 
    //enable VIC for timer interrupts
