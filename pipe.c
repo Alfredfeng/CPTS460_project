@@ -58,14 +58,20 @@ int write_pipe(PIPE *p, char *buf, int n)
   show_pipe();
   while (n){
     printf("writer %d writing pipe\n", running->pid);
+    //checks broken pipe
+    if(p->room == 8 && p->n_reader == 0)
+    {
+      printf("Detected a broken pipe!\n");
+      return -1;
+    }
     while (p->room){ //while there are rooms for writing
        p->buf[p->head++] = *buf; 
        p->head  %= PSIZE;
        buf++;  ret++; 
        p->data++; p->room--; n--;
        if (n<=0){
-         //show_pipe();
-      	 kwakeup(&p->data);
+         show_pipe();
+      	 kwakeup(&p->data);//wakes up the reader
       	 return ret;
        } //end if
     }// en inner while(p->room)
@@ -86,6 +92,12 @@ int pipe_reader()
   printf("input nbytes to read : " );
   nbytes = geti();
   n = read_pipe(p, line, nbytes); // reading bytes from the buffer
+  if(n == 0)
+  {
+    printf("No more bytes to read: the reader exits\n");
+    p->n_reader --;//decrement the number of readers
+    kexit(0);
+  }
   line[n] = 0;
   printf("Read n=%d bytes : line=%s\n", n, line);
 }
