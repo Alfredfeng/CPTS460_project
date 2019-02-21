@@ -15,6 +15,7 @@ int ksleep(int event)
 
 int kwakeup(int event)
 {
+  int num_woken = 0;
   PROC *temp, *p;
   temp = 0;
   int sr = int_off();
@@ -26,6 +27,7 @@ int kwakeup(int event)
       	//printf("wakeup %d\n", p->pid);
       	p->status = READY;
       	enqueue(&readyQueue, p);
+        num_woken ++;
      }
      else{
       	enqueue(&temp, p);
@@ -34,6 +36,7 @@ int kwakeup(int event)
   sleepList = temp;
   //printList("sleepList", sleepList);
   int_on(sr);
+  return num_woken;
 }
 
 int kexit(int exitValue)

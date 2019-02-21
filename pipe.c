@@ -27,6 +27,12 @@ int read_pipe(PIPE *p, char *buf, int n)
     return 0;
   show_pipe();
 
+  if(p->n_writer == 0 && p->data == 0)
+  {
+    printf("No data and no writer...\n");
+    return 0;
+  }
+
   while(n){
     printf("reader %d reading pipe\n", running->pid);
     ret = 0;
@@ -45,7 +51,8 @@ int read_pipe(PIPE *p, char *buf, int n)
     }
     // pipe has no data
     printf("reader %d sleep for data\n", running->pid);
-    kwakeup(&p->room);
+    int num_woken = kwakeup(&p->room); //get the number of woken writers
+    p->n_writer += num_woken; //update the number of woken writers
     ksleep(&p->data);
     continue;
   }
@@ -59,7 +66,7 @@ int write_pipe(PIPE *p, char *buf, int n)
   while (n){
     printf("writer %d writing pipe\n", running->pid);
     //checks broken pipe
-    if(p->room == 8 && p->n_reader == 0)
+    if( p->n_reader == 0)
     {
       printf("Detected a broken pipe!\n");
       return -1;
@@ -77,7 +84,9 @@ int write_pipe(PIPE *p, char *buf, int n)
     }// en inner while(p->room)
     show_pipe();
     printf("writer %d sleep for room\n", running->pid);
-    kwakeup(&p->data);
+    int num_woken = kwakeup(&p->data); // get the number of woken readers
+    p->n_reader += num_woken;//update the number of readers 
+    p->n_writer --;//decrement --
     ksleep(&p->room);
   }
 }
