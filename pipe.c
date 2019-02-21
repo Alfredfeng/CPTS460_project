@@ -26,6 +26,7 @@ int read_pipe(PIPE *p, char *buf, int n)
   if (n<=0)
     return 0;
   show_pipe();
+  printf("Current number of writers = %d\n",p->n_writer);
 
   if(p->n_writer == 0 && p->data == 0)
   {
@@ -52,7 +53,7 @@ int read_pipe(PIPE *p, char *buf, int n)
     // pipe has no data
     printf("reader %d sleep for data\n", running->pid);
     int num_woken = kwakeup(&p->room); //get the number of woken writers
-    p->n_writer += num_woken; //update the number of woken writers
+    //p->n_writer += num_woken; //update the number of woken writers
     ksleep(&p->data);
     continue;
   }
@@ -85,8 +86,8 @@ int write_pipe(PIPE *p, char *buf, int n)
     show_pipe();
     printf("writer %d sleep for room\n", running->pid);
     int num_woken = kwakeup(&p->data); // get the number of woken readers
-    p->n_reader += num_woken;//update the number of readers 
-    p->n_writer --;//decrement --
+    //p->n_reader += num_woken;//update the number of readers 
+    //p->n_writer --;//decrement --
     ksleep(&p->room);
   }
 }
@@ -119,7 +120,7 @@ int pipe_writer()
   PIPE *p = &pipe;
   printf("proc %d as pipe writer\n", running->pid);
 
-  printf("input a string to write \nan empty string will terminate the writer process:" );
+  printf("input a string to write \nan empty string will terminate the writer process:\n" );
 
   kgets(line);
   line[strlen(line)] = 0;
@@ -127,6 +128,7 @@ int pipe_writer()
   if (strcmp(line, "")==0)
   {
     //an empty string kills the writer process
+    printf("terminating the writer process\n");
     pipe->n_writer --;//decrement the number of writers
     kexit(0); //kill the current running process
   }
