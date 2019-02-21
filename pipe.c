@@ -130,7 +130,7 @@ int pipe_writer()
   {
     //an empty string kills the writer process
     printf("terminating the writer process\n");
-    pipe->n_writer --;//decrement the number of writers
+    p->n_writer --;//decrement the number of writers
     kexit(0); //kill the current running process
   }
   else{
