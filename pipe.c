@@ -3,6 +3,7 @@ int show_pipe()
   PIPE *p = &pipe;
   int i;
   printf("----------------------------------------\n");
+  printf("number of pipe reader = %d and number of pipe writers = %d\n",p->n_reader,p->n_writer);
   printf("room=%d data=%d buf=", p->room, p->data);
   for (i=0; i<p->data; i++)
     kputc(p->buf[p->tail+i]);
