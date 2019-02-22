@@ -1,5 +1,8 @@
 //timer functions
 
+TQE tqe[8]; //address of available tqe
+TQE *timer_queue;// pointer to the head of timer queue
+
 int strcpy_helper(char *dest, char *src)
 {
   while(*src){
@@ -11,6 +14,9 @@ int strcpy_helper(char *dest, char *src)
 void timer_init()
 {
 	int i; TIMER *tp;
+	TQE *tq = timer_queue;
+	tq = 0;
+
 	printf("timer_init()\n");
 	for (i=0; i<4; i++){
 		tp = &timer[i];
@@ -43,10 +49,17 @@ void timer_start(int n) // timer_start(0), 1, etc.
 void timer_handler(int n) {
 	int i;
 	TIMER *t = &timer[n];
+	TQE *head = timer_queue;
 	t->tick++;
+	
 	// Assume 120 ticks per second
 	if (t->tick==10){
 		t->tick = 0; t->ss++;
+		if(head)
+		{
+			update(1);//update the Timer queue
+		}
+
 		if (t->ss == 60){
 			t->ss = 0; t->mm++;
 			if (t->mm == 60){
@@ -68,6 +81,138 @@ void timer_handler(int n) {
 		kpchar(t->clock[i], n, 70+i); // to line n of LCD
 	}
 	timer_clearInterrupt(n); // clear timer interrupt
+}
+
+void addElement(int time)
+{
+	//implementation of
+	TQE **first = &timer_queue;
+	TQE **temp;
+	TQE *head = *first;
+
+	TQE *prev = head;//get the address of the head
+	TQE *current = head; // get the address of timer_queue
+
+	int pid = running->pid;
+
+	//printf("Adding element in timer queue\n");
+
+	tqe[pid].remaining_time = time;//get the remaining time
+	tqe[pid].proc_pid = pid;
+	tqe[pid].next = 0;
+
+	TQE *t = &tqe[pid];
+	int sleep_event = pid;
+
+	//printf("t->remaining_time = %d\n",tqe[pid].remaining_time);
+	if(! *first)
+	{
+		//add the element to the head
+		//printf("Adding first element at the front\n");
+
+		//printf("&proc[pid] = %d\n",&proc[pid]);
+		*first = t;
+
+		printTimerQueue();
+		ksleep(sleep_event);
+		return;
+	}
+
+	if( time - head->remaining_time <= 0)
+	{
+		//printf("Adding the new element in the front\n");
+		*first = t;
+		t->next = current;
+		
+		while(current)
+		{
+			current->remaining_time -= time;
+			current = current->next; //advance pointer
+		}
+
+		printTimerQueue();
+		ksleep(sleep_event);
+		return;
+	}
+	
+
+	
+
+	//insertion in the middle
+	while(current)
+	{
+		if(!current)
+			break;
+		if(time - current->remaining_time <= 0)
+		{
+			//printf("Adding element in the middle\n");
+			temp = &prev;
+			t->next = prev->next;
+			(*temp)->next = t;
+
+			prev = t;
+			current = t->next;
+
+			while(current)
+			{
+				current->remaining_time -= prev->remaining_time;
+				prev = current;
+				current = current->next;//advance pointer
+			}
+			printTimerQueue();
+			ksleep(sleep_event);
+			return;
+		}
+		time -= current->remaining_time;
+		t->remaining_time = time;//update time
+		prev = current;
+		current = current->next;//advance pointer
+	}
+	//append at the end
+	//printf("Adding element at the end\n");
+	temp = &prev;
+	(*temp)->next = t;
+	printTimerQueue();
+
+	ksleep(sleep_event);
+	
+
+}
+
+void update(int tick)
+{
+	//this function gets called every second
+	//printf("updating timer queue\n");
+	TQE *head = timer_queue;
+	TQE **temp = &timer_queue;
+
+	int sleep_event;
+
+	if(!head)
+		return;
+	sleep_event = head->proc_pid;
+	//printf("head->prod_pid = %d\n",sleep_event);
+
+	printTimerQueue();
+	if(head->remaining_time == 0)
+	{
+		printf("waking up process %d\n", head->proc_pid);
+		*temp = head->next;//update the head
+	}
+	kwakeup(sleep_event);//wake up the process
+	head->remaining_time -= tick;
+}
+
+void printTimerQueue()
+{
+	TQE *head = timer_queue;
+	
+	while(head)
+	{
+		printf("[ %d , %d ]->",head->remaining_time, head->proc_pid);
+		head = head->next;//advance pointer
+	}
+	printf("NULL\n");
 }
 
 

@@ -1,14 +1,18 @@
 #include "type.h"
 //#include "string.c"
 #include "string_helper.h"
-PROC proc[NPROC];      // NPROC PROCs
 PROC *freeList;        // freeList of PROCs 
 PROC *readyQueue;      // priority queue of READY procs
 PROC *running;         // current running proc pointer
+PROC proc[NPROC];      // NPROC PROCs
 
 PROC *tree; //process binary tree
 
 PIPE *pipe; //the pipe
+
+
+
+
 
 
 BUFFER buffer;//semaphore buffer
@@ -43,6 +47,8 @@ int body(), tswitch(), do_sleep(), do_wakeup(), do_exit(), do_switch();
 int do_kfork();
 int scheduler();
 
+void do_nothing();
+
 int do_pipereader();//pipe reader
 int do_pipewriter();// pipewriter
 
@@ -52,6 +58,8 @@ int do_consumer(); //consumer
 int do_tCommand(); //last question for the tCommand, timer queue
 
 int do_showpipe();
+
+int do_showtimerqueue();
 
 void timer_handler();//timer handler
 
@@ -115,6 +123,13 @@ int init()
     p->priority = 0;      
     p->next = p+1;
   }
+
+  for( i = 0 ; i < 8 ; i ++)
+  {
+    tqe[i].remaining_time = 0;//initialize tqe
+    tqe[i].proc_pid = 0;
+    tqe[i].next = 0;
+  }
   proc[NPROC-1].next = 0;  
   freeList = &proc[0];     // all PROCs in freeList     
   readyQueue = 0;          // readyQueue = empty
@@ -127,6 +142,9 @@ int init()
   p->priority = 0;
   p->ppid = 0;             // P0 is its own parent
   // create P1 for the sleep/wakeup
+  kfork((int) body, 1);
+
+  kfork((int) body, 1);
   kfork((int) body, 1);
   
   printList("freeList", freeList);
@@ -200,8 +218,15 @@ int body()   // process body function
 		do_showpipe();
   if (strcmp(cmd, "showbuffer") == 0)
     do_showbuffer();//show buffer
+  if (strcmp(cmd, "showtimerqueue") == 0)
+    do_showtimerqueue();
 
   }
+}
+
+void do_nothing()
+{
+
 }
 
 int kfork(int func, int priority)
@@ -237,7 +262,7 @@ int kfork(int func, int priority)
 
 int do_kfork()
 {
-   int child = kfork((int) body, 1); //default children
+   int child = kfork((int) do_nothing, 1); //default children
    if (child < 0)
       printf("kfork failed\n");
    else{
@@ -315,6 +340,17 @@ int do_showbuffer()
 int do_tCommand()
 {
 	//implementation fo tqe
+  int sec = 0;
+  printf("enter seconds for the new TQE:");
+  sec = geti();
+
+  addElement(sec);//add a new element
+  ksleep(running->pid);//current process goes to sleep
+}
+
+int do_showtimerqueue()
+{
+  printTimerQueue();
 }
 int main()
 { 
@@ -324,6 +360,8 @@ int main()
    KBD *kp = &kbd;
    color = WHITE;
    row = col = 0; 
+
+   timer_queue = 0;//initialize timer QUEUE
 
    fbuf_init();
    kprintf("Welcome to Wanix in ARM\n");

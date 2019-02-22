@@ -2,6 +2,9 @@ int tswitch();
 
 int ksleep(int event)
 {
+  if(running->status == SLEEP)
+    return 0;
+
   int sr = int_off();
   //printf("proc %d going to sleep on event=%d\n", running->pid, event);
 

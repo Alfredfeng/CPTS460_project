@@ -87,6 +87,16 @@ typedef unsigned int   u32;
 char *status[ ] = {"FREE", "READY", "SLEEP", "ZOMBIE", "BLOCKED"};
 
 
+typedef struct tqe
+{
+  int remaining_time; //remaining time for the current TQE element
+  int proc_pid; //address of the process pid
+  struct tqe *next;//pointer to the next element
+}TQE; // the TQE structure
+
+
+
+
 typedef struct proc{
     struct proc *next;      // next proc pointer       
     int  *ksp;              // saved sp: at byte offset 4 
@@ -105,6 +115,8 @@ typedef struct proc{
 
     int   kstack[1024];     // process stack                 
 }PROC;
+
+PROC proc[NPROC];      // NPROC PROCs
 
 
 typedef struct semaphore{
@@ -125,6 +137,8 @@ typedef volatile struct timer{
     int tick, hh, mm, ss; // per timer data area
     char clock[16];
 }TIMER;
+
+
 
 typedef struct pipe{
   char buf[8];
