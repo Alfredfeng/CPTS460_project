@@ -1,0 +1,25 @@
+sudo arm-none-eabi-as -mcpu=arm926ej-s us.s -o us.o
+sudo arm-none-eabi-gcc -c -mcpu=arm926ej-s -o $1.o $1.c
+sudo arm-none-eabi-ld -T u.ld us.o $1.o -Ttext=0x80000000 -o $1.elf
+sudo arm-none-eabi-objcopy -O binary $1.elf $1
+
+rm -r "lost+found"
+rm -r "bin"
+rm -r "found"
+
+sudo mount ../sdimage /mnt
+sudo cp -av $1 /mnt/bin
+#ls /mnt/bin
+sudo umount /mnt
+
+sudo rm *.elf *.o
+
+
+
+
+
+ 
+
+
+
+
