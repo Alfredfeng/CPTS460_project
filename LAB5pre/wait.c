@@ -91,6 +91,7 @@ int kwait(int *status){
         zombie->status = FREE;//put it back to free list
         zombie->ppid = 0;//clear ppid
         zombie->parent->child = zombie->sibling;
+        zombie->sibling = 0;
         //dequeue(&readyQueue);
         enqueue(&freeList,zombie); //put it back to free list
         return zombie->pid;

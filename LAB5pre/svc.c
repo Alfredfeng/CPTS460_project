@@ -79,10 +79,11 @@ int svc_handler(int a, int b, int c, int d)
      case 3: r = kchname((char *)b); break;
      case 4: r = ktswitch();         break;
      case 5: r = kgetname();         break;
-     case 6: r = ksleep(b);  break; //need to be replaced with ksleep()
-     case 7: r = kwakeup(b); break; //need to wakeup the parent
+     case 6: r = ksleep(b);          break; //need to be replaced with ksleep()
+     case 7: r = kwakeup(b);         break; //need to wakeup the parent
      case 8: r = kwait(&running->status);            break;//wait
-     case 9: r = kexit(running->event);//exit
+     case 9: r = kexit(running->event);               break;//exit
+     case 10: r = kfork((char *)b);            break;
 
      case 90: r = kgetc() & 0x7F;    break;
      case 91: r = kputc(b);          break;

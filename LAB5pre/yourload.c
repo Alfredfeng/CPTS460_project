@@ -1,4 +1,4 @@
-#include "type.h"
+//#include "type.h"
 
 int bsector;
 int bmap, imap, iblk, blk, offset;
@@ -22,16 +22,17 @@ int search(INODE *ip, char *name)
               c = dp->name[dp->name_len];  // save last byte
 
               dp->name[dp->name_len] = 0;   
-	      printf("%s ", dp->name); 
+	            printf("%s ", dp->name); 
  
-              if ( strcmp(dp->name, name) == 0 ){
-		printf("found %s\n", name); 
+              if ( strcmp(dp->name, name) == 0 )
+              {
+		            printf("found %s\n", name); 
                 return(dp->inode);
               }
               dp->name[dp->name_len] = c; // restore that last byte
               cp += dp->rec_len;
               dp = (DIR *)cp;
-	}
+	        }
      }
    }
    printf("serach failed\n");
@@ -49,8 +50,11 @@ load(char *filename, PROC *p)
   name[0] = "bin";
   name[1] = filename;
 
-  addr = (char *)(0x800000 + (p->pid - 1)*0x100000);
-  printf("loading %s: ", filename);
+  addr = (char *)(0x800000 + (p->pid - 1)*0x100000);// this is the address
+  //addr = (char *)(12*0x100000 + (p->pid - 1)*0x100000);// this is the address
+  printf("loading addr=%x\n",addr);
+
+  printf("loading %s: *******IN yourload.c******\n", filename);
   
   /* read blk#2 to get group descriptor 0 */
   getblock(2, buf1);
@@ -66,7 +70,7 @@ load(char *filename, PROC *p)
   for (i=0; i<2; i++){
       me = search(ip, name[i]) - 1;
       if (me < 0) 
-	return 0;
+	     return 0;
       getblock(iblk+(me/8), buf1);    // read block inode of me
       ip = (INODE *)buf1 + (me % 8);
   }
@@ -81,10 +85,10 @@ load(char *filename, PROC *p)
     if (ip->i_block[i] == 0)
       break;
       //printf("location=%x count=%d\n", location, count);
-      getblock(ip->i_block[i], addr);
-      kputc('*');
-      addr += 1024;
-      count += 1024;
+    getblock(ip->i_block[i], addr);
+    kputc('*');
+    addr += 1024;
+    count += 1024;
   }
 
   if (ip->i_block[12]){ // only if file has indirect blocks

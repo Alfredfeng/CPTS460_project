@@ -18,12 +18,12 @@ extern PROC *readyQueue;
 extern PROC *tree;
 extern char *pstatus[];
 
-
 int body(), goUmode();
 
 PROC *kfork(char *filename)
 {
   int i; 
+  int usize;//user mode image size
   int *ptable, pentry;
   char *addr;
   /*
@@ -43,7 +43,7 @@ PROC *kfork(char *filename)
   p->parent = running;
   p->parent = running;
   p->status = READY;
-  p->priority = 1;
+  p->priority = 1;// all new procs priority = 1
   p->cpsr = (int *)0x10;
   
  // build p's pgtable 
@@ -92,7 +92,7 @@ PROC *kfork(char *filename)
   // must load filename to Umode image area at 7MB+(pid-1)*1MB
   addr = (char *)(0x700000 + (p->pid)*0x100000);
 
-  load(filename, p);
+  load(filename, p);//invoking load function...
   
   // must fix Umode ustack for it to goUmode: how did the PROC come to Kmode?
   // by swi # from VA=0 in Umode => at that time all CPU regs are 0

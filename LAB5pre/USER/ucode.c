@@ -5,6 +5,12 @@ typedef unsigned int    u32;
 #include "string.c"
 #include "uio.c"
 
+char *fileName[8] = {"u1", "u2", "u3", "u4", "u5", "u6", "u7", "u8"};
+
+int i = 1;
+
+int ufork(char* name);
+
 int ubody(char *name)
 {
   int pid, ppid;
@@ -44,6 +50,13 @@ int ubody(char *name)
       uwait();
     if (strcmp(line, "exit") == 0)
       uexit();
+    if(strcmp(line, "kfork") == 0 || strcmp(line,"fork") == 0)
+    {
+      printf("inside kfork()...\n");
+      printf("kforking %s\n",fileName[i]);
+      ufork(fileName[i]);
+      i++; i %= 9;
+    }//end if
   }
 }
 
@@ -51,7 +64,7 @@ int umenu()
 {
   uprintf("-------------------------------\n");
   uprintf("getpid getppid ps chname switch\n");
-  uprintf("sleep wakup getname exit \n");
+  uprintf("sleep wakup getname exit kfork\n");
   uprintf("-------------------------------\n");
 }
 
@@ -132,6 +145,11 @@ int ugetc()
 int uputc(char c)
 {
   return syscall(91,c,0,0);
+}
+
+int ufork(char *name)
+{
+  return syscall(10,name,0,0);
 }
 
 int getPA()

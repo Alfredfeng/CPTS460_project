@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 char *tab = "0123456789ABCDEF";
 int BASE;
 int color;
+char *fileName[8] = {"u1", "u2", "u3", "u4", "u5", "u6", "u7", "u8"};
 
 extern PROC *tree; //process binary tree
 extern char *pstatus[];
@@ -42,7 +43,8 @@ extern char *pstatus[];
 #include "svc.c"
 
 #include "sdc.c"
-// #include "yourload.c"
+
+//#include "yourload.c"
 
 
 void copy_vectors(void) {
@@ -141,10 +143,10 @@ int main()
    
    kernel_init();
   
-   kfork("u1");
-   kfork("u2");
-   kfork("u3");
-   kfork("u4");
+   kfork(fileName[0]); //fork u1 process
+   //kfork(fileName[1]); //for u2 process
+   //kfork(fileName[2]);
+   //kfork(fileName[3]);
    
    unlock();
    color = WHITE;

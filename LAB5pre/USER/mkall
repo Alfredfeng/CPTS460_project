@@ -1,3 +1,8 @@
-mku u1
-mku u2
-mku u3
+sudo ./mku u1
+sudo ./mku u2
+sudo ./mku u3
+sudo ./mku u4
+sudo ./mku u5
+sudo ./mku u6
+sudo ./mku u7
+sudo ./mku u8
